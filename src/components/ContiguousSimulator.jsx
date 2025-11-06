@@ -325,6 +325,7 @@ export default function ContiguousSimulator() {
                           <span className="px-2 py-0.5 rounded border-2 border-slate-700 bg-slate-800 text-[11px] text-slate-300">Tidak ada kandidat</span>
                         )}
                       </div>
+                    </div>
                   </div>
                 </div>
               </li>
