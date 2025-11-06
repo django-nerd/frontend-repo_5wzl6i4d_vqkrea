@@ -1,28 +1,25 @@
-import { useState } from 'react'
+import { useState } from 'react';
+import Header from './components/Header.jsx';
+import ContiguousSimulator from './components/ContiguousSimulator.jsx';
+import PagingSimulator from './components/PagingSimulator.jsx';
+import SiteFooter from './components/SiteFooter.jsx';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [activeTab, setActiveTab] = useState('contiguous');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-slate-100 flex flex-col">
+      <Header activeTab={activeTab} onChangeTab={setActiveTab} />
 
-export default App
+      <main className="container mx-auto px-4 py-8 flex-1 w-full max-w-6xl">
+        {activeTab === 'contiguous' ? (
+          <ContiguousSimulator />
+        ) : (
+          <PagingSimulator />
+        )}
+      </main>
+
+      <SiteFooter />
+    </div>
+  );
+}
