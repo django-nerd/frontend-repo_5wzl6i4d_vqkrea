@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Shuffle, Info, ChevronRight } from 'lucide-react';
+import { Shuffle, Info, ChevronRight, Layers } from 'lucide-react';
 
 function parseRefString(text) {
   return text
@@ -18,21 +18,25 @@ function simulateFIFO(refs, frames) {
   refs.forEach((p) => {
     const idx = frame.indexOf(p);
     let replaced = null;
+    let explanation = '';
     if (idx !== -1) {
       hits++;
+      explanation = 'Halaman sudah ada di frame → HIT';
     } else {
       if (queue.length < frames) {
         const slot = frame.indexOf(null);
         frame[slot] = p;
         queue.push(slot);
+        explanation = 'Frame kosong tersedia → Masukkan halaman ke slot kosong (FIFO)';
       } else {
         const victimSlot = queue.shift();
         replaced = frame[victimSlot];
         frame[victimSlot] = p;
         queue.push(victimSlot);
+        explanation = `Frame penuh → Gantikan halaman yang paling awal masuk (${replaced})`;
       }
     }
-    steps.push({ page: p, frame: [...frame], hit: idx !== -1, replaced });
+    steps.push({ page: p, frame: [...frame], hit: idx !== -1, replaced, explanation, victimPolicy: 'FIFO' });
   });
   return { steps, hits, faults: refs.length - hits };
 }
@@ -46,16 +50,18 @@ function simulateLRU(refs, frames) {
   refs.forEach((p) => {
     const idx = frame.indexOf(p);
     let replaced = null;
+    let explanation = '';
     if (idx !== -1) {
       hits++;
       lastUsed.set(p, time);
+      explanation = 'Halaman diakses ulang → perbarui waktu terakhir dipakai (HIT)';
     } else {
       if (frame.includes(null)) {
         const slot = frame.indexOf(null);
         frame[slot] = p;
         lastUsed.set(p, time);
+        explanation = 'Ada slot kosong → masukkan halaman baru, tandai waktu sekarang';
       } else {
-        // victim is least recently used
         let victimIndex = 0;
         let oldestTime = Infinity;
         frame.forEach((val, i) => {
@@ -69,9 +75,10 @@ function simulateLRU(refs, frames) {
         frame[victimIndex] = p;
         lastUsed.delete(replaced);
         lastUsed.set(p, time);
+        explanation = `Frame penuh → gantikan yang paling lama tidak dipakai (${replaced})`;
       }
     }
-    steps.push({ page: p, frame: [...frame], hit: idx !== -1, replaced });
+    steps.push({ page: p, frame: [...frame], hit: idx !== -1, replaced, explanation, victimPolicy: 'LRU' });
     time++;
   });
   return { steps, hits, faults: refs.length - hits };
@@ -84,14 +91,16 @@ function simulateOptimal(refs, frames) {
   refs.forEach((p, i) => {
     const idx = frame.indexOf(p);
     let replaced = null;
+    let explanation = '';
     if (idx !== -1) {
       hits++;
+      explanation = 'Halaman sudah ada → HIT';
     } else {
       if (frame.includes(null)) {
         const slot = frame.indexOf(null);
         frame[slot] = p;
+        explanation = 'Ada slot kosong → masukkan halaman';
       } else {
-        // choose victim with farthest next use
         let victimIndex = 0;
         let farthest = -1;
         frame.forEach((val, fi) => {
@@ -104,9 +113,10 @@ function simulateOptimal(refs, frames) {
         });
         replaced = frame[victimIndex];
         frame[victimIndex] = p;
+        explanation = `Gantikan halaman yang paling lama tidak akan digunakan (${replaced})`;
       }
     }
-    steps.push({ page: p, frame: [...frame], hit: idx !== -1, replaced });
+    steps.push({ page: p, frame: [...frame], hit: idx !== -1, replaced, explanation, victimPolicy: 'Optimal' });
   });
   return { steps, hits, faults: refs.length - hits };
 }
@@ -131,32 +141,32 @@ export default function PagingSimulator() {
 
   return (
     <section className="space-y-8">
-      <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 space-y-4">
+      <div className="rounded-xl border-2 border-slate-800 bg-slate-900/60 p-4 space-y-4 shadow-[0_6px_0_0_rgba(15,23,42,1)]">
         <div className="flex flex-wrap items-end gap-4">
           <div className="flex-1 min-w-[240px]">
-            <label className="block text-xs text-slate-400 mb-1">Reference String</label>
+            <label className="block text-[11px] text-slate-400 mb-1 uppercase tracking-wider">Reference String</label>
             <input
               type="text"
               value={refString}
               onChange={(e) => setRefString(e.target.value)}
               placeholder="contoh: 7, 0, 1, 2, 0, 3, ..."
-              className="w-full rounded-md bg-slate-800 border border-slate-700 px-3 py-2 text-sm"
+              className="w-full rounded-md bg-slate-800 border-2 border-slate-700 px-3 py-2 text-sm"
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Jumlah Frame</label>
+            <label className="block text-[11px] text-slate-400 mb-1 uppercase tracking-wider">Jumlah Frame</label>
             <input
               type="number"
               value={frames}
               min={1}
               max={10}
               onChange={(e) => setFrames(Math.max(1, Math.min(10, Number(e.target.value) || 1)))}
-              className="w-28 rounded-md bg-slate-800 border border-slate-700 px-3 py-2 text-sm"
+              className="w-28 rounded-md bg-slate-800 border-2 border-slate-700 px-3 py-2 text-sm"
             />
           </div>
           <div className="ml-auto flex items-center gap-2">
             <button
-              className="inline-flex items-center gap-2 rounded-md bg-slate-800 border border-slate-700 px-3 py-2 text-sm hover:bg-slate-700"
+              className="inline-flex items-center gap-2 rounded-md bg-slate-800 border-2 border-slate-700 px-3 py-2 text-sm hover:bg-slate-700 active:translate-y-[1px]"
               onClick={() => {
                 const arr = Array.from({ length: 12 }, () => Math.floor(Math.random() * 10));
                 setRefString(arr.join(', '));
@@ -177,9 +187,9 @@ export default function PagingSimulator() {
             <button
               key={opt.id}
               onClick={() => setAlgo(opt.id)}
-              className={`rounded-md px-3 py-1.5 text-sm border transition ${
+              className={`rounded-md px-3 py-1.5 text-sm border-2 transition font-medium ${
                 algo === opt.id
-                  ? 'border-blue-500/50 bg-blue-500/10 text-blue-300'
+                  ? 'border-sky-500 bg-sky-500/10 text-sky-300 shadow-[0_2px_0_0_rgba(56,189,248,0.3)]'
                   : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700'
               }`}
             >
@@ -188,7 +198,7 @@ export default function PagingSimulator() {
           ))}
         </div>
 
-        <div className="rounded-lg border border-slate-800 bg-slate-900 p-3">
+        <div className="rounded-lg border-2 border-slate-800 bg-slate-900 p-3">
           <div className="text-sm text-slate-300 mb-2 flex items-center gap-2">
             <Info className="w-4 h-4" />
             <span>Simulasi langkah-demi-langkah</span>
@@ -223,15 +233,15 @@ export default function PagingSimulator() {
           </div>
 
           <div className="mt-4 grid grid-cols-3 gap-3">
-            <div className="rounded-md border border-slate-800 bg-slate-900 p-3">
+            <div className="rounded-md border-2 border-slate-800 bg-slate-900 p-3">
               <div className="text-slate-300 text-sm">Total Ref</div>
               <div className="text-2xl font-semibold">{refs.length}</div>
             </div>
-            <div className="rounded-md border border-slate-800 bg-slate-900 p-3">
+            <div className="rounded-md border-2 border-slate-800 bg-slate-900 p-3">
               <div className="text-slate-300 text-sm">Hits</div>
               <div className="text-2xl font-semibold text-emerald-300">{result.hits}</div>
             </div>
-            <div className="rounded-md border border-slate-800 bg-slate-900 p-3">
+            <div className="rounded-md border-2 border-slate-800 bg-slate-900 p-3">
               <div className="text-slate-300 text-sm">Faults</div>
               <div className="text-2xl font-semibold text-rose-300">{result.faults}</div>
             </div>
@@ -239,7 +249,26 @@ export default function PagingSimulator() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
+      <div className="rounded-xl border-2 border-slate-800 bg-slate-900/60 p-4 space-y-2">
+        <h3 className="text-sm font-semibold">Breakdown Setiap Langkah</h3>
+        <ol className="space-y-2">
+          {result.steps.map((s, i) => (
+            <li key={i} className="rounded-md border-2 border-slate-700 bg-slate-800 p-3">
+              <div className="flex items-start gap-2">
+                <ChevronRight className="w-4 h-4 mt-0.5 text-slate-400" />
+                <div className="flex-1 text-sm">
+                  Ref <span className="font-mono font-semibold">{s.page}</span> → {s.explanation}
+                  {s.replaced !== null && (
+                    <>. Korban: <span className="font-mono">{s.replaced}</span> ({s.victimPolicy})</>
+                  )}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="rounded-xl border-2 border-slate-800 bg-slate-900/60 p-4">
         <h3 className="text-sm font-semibold mb-3">Penjelasan Singkat</h3>
         <ul className="list-disc pl-6 space-y-2 text-sm text-slate-300">
           <li>FIFO: Page yang masuk paling awal akan diganti terlebih dahulu ketika terjadi page fault.</li>

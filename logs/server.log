@@ -3,9 +3,93 @@
 > vite
 
 
-  VITE v5.4.20  ready in 266 ms
+  VITE v5.4.20  ready in 265 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: http://172.20.14.80:3000/
-12:23:12 AM [vite] ✨ new dependencies optimized: @splinetool/react-spline
-12:23:12 AM [vite] ✨ optimized dependencies changed. reloading
+12:27:17 AM [vite] Pre-transform error: Transform failed with 3 errors:
+/home/workspace/src/components/ContiguousSimulator.jsx:330:16: ERROR: Unexpected closing "li" tag does not match opening "div" tag
+/home/workspace/src/components/ContiguousSimulator.jsx:332:12: ERROR: Unexpected closing "ol" tag does not match opening "li" tag
+/home/workspace/src/components/ContiguousSimulator.jsx:333:14: ERROR: Unterminated regular expression
+12:27:18 AM [vite] Internal server error: Transform failed with 3 errors:
+/home/workspace/src/components/ContiguousSimulator.jsx:330:16: ERROR: Unexpected closing "li" tag does not match opening "div" tag
+/home/workspace/src/components/ContiguousSimulator.jsx:332:12: ERROR: Unexpected closing "ol" tag does not match opening "li" tag
+/home/workspace/src/components/ContiguousSimulator.jsx:333:14: ERROR: Unterminated regular expression
+  Plugin: vite:esbuild
+  File: /home/workspace/src/components/ContiguousSimulator.jsx:330:16
+  
+  Unexpected closing "li" tag does not match opening "div" tag
+  328|                    </div>
+  329|                  </div>
+  330|                </li>
+     |                  ^
+  331|              ))}
+  332|            </ol>
+  
+  Unexpected closing "ol" tag does not match opening "li" tag
+  330|                </li>
+  331|              ))}
+  332|            </ol>
+     |              ^
+  333|          </div>
+  334|        </div>
+  
+  Unterminated regular expression
+  331|              ))}
+  332|            </ol>
+  333|          </div>
+     |                ^
+  334|        </div>
+  335|      </section>
+  
+      at failureErrorWithLog (/home/workspace/node_modules/esbuild/lib/main.js:1472:15)
+      at /home/workspace/node_modules/esbuild/lib/main.js:755:50
+      at responseCallbacks.<computed> (/home/workspace/node_modules/esbuild/lib/main.js:622:9)
+      at handleIncomingPacket (/home/workspace/node_modules/esbuild/lib/main.js:677:12)
+      at Socket.readFromStdout (/home/workspace/node_modules/esbuild/lib/main.js:600:7)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+12:27:45 AM [vite] Internal server error: Transform failed with 3 errors:
+/home/workspace/src/components/ContiguousSimulator.jsx:330:16: ERROR: Unexpected closing "li" tag does not match opening "div" tag
+/home/workspace/src/components/ContiguousSimulator.jsx:332:12: ERROR: Unexpected closing "ol" tag does not match opening "li" tag
+/home/workspace/src/components/ContiguousSimulator.jsx:333:14: ERROR: Unterminated regular expression
+  Plugin: vite:esbuild
+  File: /home/workspace/src/components/ContiguousSimulator.jsx:330:16
+  
+  Unexpected closing "li" tag does not match opening "div" tag
+  328|                    </div>
+  329|                  </div>
+  330|                </li>
+     |                  ^
+  331|              ))}
+  332|            </ol>
+  
+  Unexpected closing "ol" tag does not match opening "li" tag
+  330|                </li>
+  331|              ))}
+  332|            </ol>
+     |              ^
+  333|          </div>
+  334|        </div>
+  
+  Unterminated regular expression
+  331|              ))}
+  332|            </ol>
+  333|          </div>
+     |                ^
+  334|        </div>
+  335|      </section>
+  
+      at failureErrorWithLog (/home/workspace/node_modules/esbuild/lib/main.js:1472:15)
+      at /home/workspace/node_modules/esbuild/lib/main.js:755:50
+      at responseCallbacks.<computed> (/home/workspace/node_modules/esbuild/lib/main.js:622:9)
+      at handleIncomingPacket (/home/workspace/node_modules/esbuild/lib/main.js:677:12)
+      at Socket.readFromStdout (/home/workspace/node_modules/esbuild/lib/main.js:600:7)
+      at Socket.emit (node:events:508:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5)
+      at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
